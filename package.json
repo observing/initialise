@@ -1,0 +1,29 @@
+{
+  "name": "initialize",
+  "version": "0.0.0",
+  "description": "Lazy initialization / require wrapper. Makes sure you only load the modules once when you need them.",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/.bin/mocha $(find test -name '*.test.js')"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:observing/initialize.git"
+  },
+  "keywords": [
+    "init",
+    "initialize",
+    "require",
+    "lazy",
+    "load",
+    "loader",
+    "module"
+  ],
+  "author": "Arnout Kazemier <opensource@observe.it>",
+  "license": "MIT",
+  "devDependencies": {
+    "pre-commit": "0.0.x",
+    "chai": "~1.5.0",
+    "mocha": "~1.9.0"
+  }
+}
