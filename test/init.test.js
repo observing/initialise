@@ -48,11 +48,11 @@ describe('initialise', function () {
   it('provides the init function with a register function', function (done) {
     var hook = Object.create(null)
       , init = initialise.on(hook)
-      , flow = '';
+      , flow = {};
 
     init('config', function config(register) {
       register('config', function () {
-        flow += 'custom;';
+        flow.custom = 1;
       });
 
       return function () {};
@@ -65,7 +65,7 @@ describe('initialise', function () {
 
       return {
         custom: function () {
-          flow += 'method;';
+          flow.method = 1;
         }
       };
     });
@@ -75,7 +75,7 @@ describe('initialise', function () {
 
       return {
         close: function () {
-          flow += 'close;';
+          flow.nothing = 1;
         }
       };
     });
@@ -84,7 +84,9 @@ describe('initialise', function () {
     hook.nothing;
 
     init.end(function () {
-      expect(flow).to.equal('method;custom;close;');
+      expect(flow.custom).to.equal(1);
+      expect(flow.method).to.equal(1);
+      expect(flow.nothing).to.equal(1);
       done();
     });
   });
