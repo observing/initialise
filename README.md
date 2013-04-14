@@ -1,6 +1,6 @@
-# initialize
+# initialise
 
-Initialize is a small module that allows you to lazy require/initialize modules
+initialise is a small module that allows you to lazy require/initialise modules
 when they are accessed. This allows you to easily build light weight `core`
 modules that can be shared with various of parts of your infrastructure
 / services.
@@ -8,23 +8,23 @@ modules that can be shared with various of parts of your infrastructure
 ### Installation
 
 ```
-npm install initialize --save
+npm install initialise --save
 ```
 
 ### Example
 
-The following example illustrates the power and usage of initialize.
+The following example illustrates the power and usage of initialise.
 
 ```js
 //
 // Require the module and hook it on to the exports object
 //
-var initialize = require('initialize').on(exports);
+var initialise = require('initialise').on(exports);
 
 //
 // You can now define lazy loaded modules:
 //
-initialize('foo', function foo() {
+initialise('foo', function foo() {
   return require('./foo');
 });
 ```
@@ -34,17 +34,17 @@ We now have a `exports.foo` method. When you access it, it will load the module
 use. You can could also use it to require pre-configured database connections,
 loggers, configuration files and what more. It comes with a small `register`
 function that you can use to register a destruction handler. This ensures that
-every initialized module is cleaned up correctly when `initialize.end` is
+every initialised module is cleaned up correctly when `initialise.end` is
 called.
 
 ```js
-var initialize = require('initialize').on(exports);
+var initialise = require('initialise').on(exports);
 
-initialize('config', function () {
+initialise('config', function () {
   return require('./configuration.json');
 });
 
-initialize(function redisClient(register) {
+initialise(function redisClient(register) {
   var config = this.config.get('redis')
     , auth = config.auth || config.password || config.pass
     , redis = require('redis').createClient(config.port, config.host)
@@ -77,7 +77,7 @@ a function as well:
 
 ```js
 register('redis', function () {
-  // This function will be called when initialize.end() is called.
+  // This function will be called when initialise.end() is called.
 });
 ```
 

@@ -1,10 +1,10 @@
 'use strict';
 
 /**
- * Create a new lazy initialization hook.
+ * Create a new lazy initialisation hook.
  *
- * @param {Object} structure The hook where all initialization methods are on.
- * @returns {Function} initialization.
+ * @param {Object} structure The hook where all initialisation methods are on.
+ * @returns {Function} initialisation.
  * @api public
  */
 exports.on = function on(structure) {
@@ -15,12 +15,12 @@ exports.on = function on(structure) {
    * @param {Function} fn The function that needs to be executed once to load
    * @api private
    */
-  function initialize(name, fn) {
+  function initialise(name, fn) {
     Object.defineProperty(structure, name, {
       configurable: true,
 
       //
-      // The lazy initializer, it will set the value of the returned function for
+      // The lazy initialiser, it will set the value of the returned function for
       // the given name.
       //
       get: function get() {
@@ -31,14 +31,14 @@ exports.on = function on(structure) {
             //
             // Register that this module needs a clean up.
             //
-            initialize.registered[cleanup] = method || true;
+            initialise.registered[cleanup] = method || true;
           })
         })[name];
       },
 
       //
       // Simple helper function that will set the value and remove our
-      // initialization structure. This is required to make the `get` working.
+      // initialisation structure. This is required to make the `get` working.
       //
       set: function set(val) {
         return Object.defineProperty(this, name, {
@@ -51,18 +51,18 @@ exports.on = function on(structure) {
   //
   // Simple registery that contains the exports that need to be cleaned up.
   //
-  initialize.registered = Object.create(null);
+  initialise.registered = Object.create(null);
 
   /**
-   * This will destroy all references and clean up all the initialized code so we
+   * This will destroy all references and clean up all the initialised code so we
    * can exit cleanly.
    *
    * @param {Function} done Callback function for when everything is cleared.
    * @api public
    */
-  initialize.end = function end(done) {
-    Object.keys(initialize.registered).forEach(function each(name) {
-      var method = initialize.registered[name]
+  initialise.end = function end(done) {
+    Object.keys(initialise.registered).forEach(function each(name) {
+      var method = initialise.registered[name]
         , instance = structure[name]
         , type = typeof method;
 
@@ -92,7 +92,7 @@ exports.on = function on(structure) {
   };
 
   //
-  // Expose the initialize function.
+  // Expose the initialise function.
   //
-  return initialize;
+  return initialise;
 };
