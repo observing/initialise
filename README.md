@@ -1,5 +1,7 @@
 # initialise
 
+[![Build Status](https://travis-ci.org/observing/initialise.png)](https://travis-ci.org/observing/initialise)
+
 initialise is a small module that allows you to lazy require/initialise modules
 when they are accessed. This allows you to easily build light weight `core`
 modules that can be shared with various of parts of your infrastructure
