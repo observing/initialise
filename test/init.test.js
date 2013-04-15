@@ -28,11 +28,15 @@ describe('initialise', function () {
       , requires = '';
 
     init('config', function config() {
+      expect(this).to.equal(hook);
+
       requires += 'config;';
       return function () {};
     });
 
     init('test', function called() {
+      expect(this).to.equal(hook);
+
       this.config();
 
       requires += 'test;';
