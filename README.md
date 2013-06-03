@@ -46,7 +46,7 @@ initialise('config', function () {
   return require('./configuration.json');
 });
 
-initialise(function redisClient(register) {
+initialise('redis', function redisClient(register) {
   var config = this.config.get('redis')
     , auth = config.auth || config.password || config.pass
     , redis = require('redis').createClient(config.port, config.host)
@@ -68,6 +68,10 @@ initialise(function redisClient(register) {
 });
 ```
 
+```js
+initialise.end();
+```
+
 In the example above you also see `this.config`, this is actually a reference to
 the `exports.config` and will lazy load the `./configuration.json` file that
 contains our example redis configuration. It passes the string `quit` to the
@@ -82,6 +86,22 @@ register('redis', function () {
   // This function will be called when initialise.end() is called.
 });
 ```
+
+The destruction can also be done async, but initialise is pretty dumb so you
+have to help it a bit so it understands that this clean up operation is async.
+So in the case of redis it would simply become:
+
+```
+initialise('redis', function create(register) {
+  .. do your redis creation magic, same as example above ..
+
+  register.async('redis', 'quit');
+
+  //
+  // As you can see above, we call register.async instead of just register so
+  // we can pass in a callback to the method and wait for it to be called.
+  //
+});
 
 ### License
 

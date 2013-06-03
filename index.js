@@ -24,15 +24,38 @@ exports.on = function on(structure) {
       // the given name.
       //
       get: function get() {
-        return Object.defineProperty(this, name, {
-          value: fn.call(structure, function register(cleanup, method) {
-            cleanup = cleanup || name;
+        /**
+         * Simple clean up method.
+         *
+         * @param {String} cleanup
+         * @param {String} method
+         * @api private
+         */
+        function register(cleanup, method) {
+          cleanup = cleanup || name;
 
-            //
-            // Register that this module needs a clean up.
-            //
-            initialise.registered[cleanup] = method || true;
-          })
+          //
+          // Register that this module needs a clean up.
+          //
+          initialise.registered[cleanup] = {
+            method: method || true,
+            async: this === 'async'
+          };
+        }
+
+        //
+        // Allow an more awesome clean up interface by telling that shit is
+        // async:
+        //
+        // initialise('foo', function (cleanup) {
+        //  cleanup('method');
+        //  cleanup.async('method');
+        // });
+        //
+        register.async = register.bind('async');
+
+        return Object.defineProperty(this, name, {
+          value: fn.call(structure, register)
         })[name];
       },
 
@@ -57,13 +80,30 @@ exports.on = function on(structure) {
    * This will destroy all references and clean up all the initialised code so we
    * can exit cleanly.
    *
-   * @param {Function} done Callback function for when everything is cleared.
+   * @param {Function} fn Callback function for when everything is cleared.
    * @api public
    */
-  initialise.end = function end(done) {
+  initialise.end = function end(fn) {
+    var todo = 0
+      , done = 0;
+
+    /**
+     * A poor man's async helper. It stores the last error and calls the
+     * callback once all async cleanup has finished.
+     *
+     * @param {Error} err Optional error
+     * @api private
+     */
+    function next(err) {
+      if (err) next.err = err;
+      if (++done === todo && fn) fn(next.err);
+    }
+
     Object.keys(initialise.registered).forEach(function each(name) {
-      var method = initialise.registered[name]
+      var unregister = initialise.registered[name]
+        , method = unregister.method
         , instance = structure[name]
+        , async = unregister.async
         , type = typeof method;
 
       //
@@ -71,7 +111,12 @@ exports.on = function on(structure) {
       // gracefully exit first and if that fails, forcefully exit. Or mabye it
       // requires specific arguments etc.
       //
-      if ('function' === type) return method();
+      if ('function' === type) {
+        if (!async) return method();
+
+        todo++;
+        return method(next);
+      }
 
       //
       // If no clean-up method is provided try to guess the method instead. There
@@ -84,11 +129,16 @@ exports.on = function on(structure) {
       }
 
       // Savely clean it up.
-      if (method in instance) instance[method]();
+      if (method in instance) {
+        if (!async) return instance[method]();
+
+        todo++;
+        return instance[method](next);
+      }
     });
 
     // Optional callback.
-    if (done) done();
+    if (fn && todo === done) fn();
   };
 
   //

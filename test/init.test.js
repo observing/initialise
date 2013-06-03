@@ -94,4 +94,35 @@ describe('initialise', function () {
       done();
     });
   });
+
+  it('supports async unregistering', function (done) {
+    var hook = Object.create(null)
+      , init = initialise.on(hook);
+
+    init('foo', function (register) {
+      register.async('foo', function (done) {
+        setTimeout(done, 100);
+      });
+
+      return {};
+    });
+
+    init('meh', function (register) {
+      register.async('meh', 'nothing');
+
+      return {
+        nothing: function (done) {
+          return process.nextTick(done.bind(done, new Error('foo')));
+        }
+      };
+    });
+
+    hook.foo;
+    hook.meh;
+
+    init.end(function end(err) {
+      expect(err.message).to.equal('foo');
+      done();
+    });
+  });
 });
