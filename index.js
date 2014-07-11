@@ -15,7 +15,7 @@ exports.on = function on(structure) {
    * @param {Function} fn The function that needs to be executed once to load
    * @api private
    */
-  function initialise(name, fn) {
+  function initialise(name, fn, options) {
     Object.defineProperty(structure, name, {
       configurable: true,
 
@@ -55,7 +55,7 @@ exports.on = function on(structure) {
         register.async = register.bind('async');
 
         return Object.defineProperty(this, name, {
-          value: fn.call(structure, register)
+          value: fn.call(structure, register, options)
         })[name];
       },
 
