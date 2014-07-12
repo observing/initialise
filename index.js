@@ -55,7 +55,7 @@ exports.on = function on(structure) {
         register.async = register.bind('async');
 
         return Object.defineProperty(this, name, {
-          value: fn.call(structure, register, options)
+          value: fn.call(structure, register, options || {})
         })[name];
       },
 

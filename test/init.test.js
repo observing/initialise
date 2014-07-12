@@ -95,6 +95,29 @@ describe('initialise', function () {
     });
   });
 
+  it('provides the init function with a options object', function () {
+    var hook = Object.create(null)
+      , init = initialise.on(hook)
+      , flow = {};
+
+    init('config', function config(register, options) {
+      expect(options).to.be.an('object');
+      expect(options).to.have.property('test', 'optional');
+      expect(options).to.have.property('more');
+      expect(options.more).to.be.an('array');
+      expect(options.more).to.include('options');
+    }, { test: 'optional', more: ['options'] });
+
+    init('noop', function noop(register, options) {
+      expect(options).to.be.an('object');
+      expect(Object.keys(options).length).to.equal(0);
+      expect(arguments.length).to.equal(2);
+    });
+
+    hook.config;
+    hook.noop;
+  });
+
   it('supports async unregistering', function (done) {
     var hook = Object.create(null)
       , init = initialise.on(hook);
